@@ -18,7 +18,7 @@
   };
 
   const getIqaData = async (iqaPath) => {
-    const getData = await fetch(`${window.location.origin}/api/query?queryname=${iqapath}`, {
+    const getData = await fetch(`${window.location.origin}/api/query?queryname=${iqaPath}`, {
       method: "GET",
       headers: { RequestVerificationToken: jQuery("#__RequestVerificationToken").val() },
     });
