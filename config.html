@@ -1,0 +1,242 @@
+<html>
+  <head> </head>
+
+  <body>
+    <div class="ShowFieldset">
+      <fieldset>
+
+        <div class="PanelField Left">
+          <div style="display: inline">
+            <label for="Region_1_IQAPath_Input" class="Required">Source query</label>
+          </div>
+
+          <div class="PanelFieldValue InputXLargeWrapper">
+            <input
+              name="IQAPath"
+              id="Region_1_IQAPath_Input"
+              type="text"
+              onchange="setConfigValueforIQAPath(this.id,'')"
+              onblur="ValidatePath(this.id)"
+              translate="yes"
+              aria-required="true"
+              data-parentname="Region_1"
+              data-validatorid="Region_1_IQAPath_Validator"
+              data-defaultvalue="default iqa path"
+              data-iqapathkey=""
+            />
+
+            <a class="cc-link" onclick="selectQuery('Region_1_IQAPath_Input')">select</a>
+          </div>
+
+          <div class="mt-2">
+            <span class="Important d-none" id="Region_1_IQAPath_Validator">Required</span>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+  </body>
+
+  <script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function (event) {
+      LoadData();
+
+      Configure();
+    });
+
+    function Configure() {
+      var saveandClose = document.querySelector("input[id$='_SaveAndCloseButton']");
+
+      var save = document.querySelector("input[id$='_SaveButton']");
+
+      if (saveandClose) {
+        saveandClose.onmousedown = ValidateandSaveConfigFile;
+      }
+
+      if (save) {
+        save.onmousedown = ValidateandSaveConfigFile;
+      }
+    }
+
+    function LoadData() {
+      var currentConfigData = getSettings();
+
+      document.querySelectorAll("[data-parentname]").forEach((input) => {
+        bindConfigValue(input, currentConfigData);
+      });
+    }
+
+    function getSettings() {
+      if (document.getElementById("JsonSettings").value) {
+        return JSON.parse(document.getElementById("JsonSettings").value);
+      } else {
+        var currentSettings = {};
+
+        setSettings(currentSettings);
+
+        return currentSettings;
+      }
+    }
+
+    function setSettings(configValues) {
+      document.getElementById("JsonSettings").value = JSON.stringify(configValues);
+    }
+
+    function bindConfigValue(input, currentSettings) {
+      var fieldset = currentSettings[input.dataset.parentname];
+
+      var inputValue =
+        fieldset && fieldset.hasOwnProperty(input.name) ? fieldset[input.name] : input.dataset.defaultvalue || "";
+
+      if (input.type === "checkbox") {
+        //boolean attribute, only put value when true
+
+        if (inputValue) {
+          input.checked = inputValue;
+        }
+      } else {
+        input.value = inputValue;
+      }
+
+      if (input.name.includes("IQA")) {
+        input.title = inputValue;
+
+        input.dataset.iqapathkey = fieldset ? fieldset[input.name + "_key"] || "" : "";
+      }
+    }
+
+    function commitConfigValue() {
+      var currentSettings = {};
+
+      document.querySelectorAll("[data-parentname]").forEach((input) => {
+        var fieldset = currentSettings[input.dataset.parentname];
+
+        if (!fieldset) {
+          currentSettings[input.dataset.parentname] = {};
+
+          fieldset = currentSettings[input.dataset.parentname];
+        }
+
+        if (input.dataset.iqapathkey) {
+          fieldset[input.name + "_key"] = input.dataset.iqapathkey;
+        }
+
+        if (input.type === "checkbox") {
+          fieldset[input.name] = input.checked || Boolean(0);
+        } else {
+          fieldset[input.name] = input.value;
+        }
+      });
+
+      setSettings(currentSettings);
+    }
+
+    function setConfigValueforIQAPath(inputId, keyValue) {
+      var input = document.getElementById(inputId);
+
+      input.title = input.value;
+
+      input.dataset.iqapathkey = keyValue || "";
+
+      var validator = document.getElementById(input.dataset.validatorid);
+
+      if (validator) ValidatePath(inputId);
+    }
+
+    function selectQuery(inputId) {
+      var input = document.getElementById(inputId);
+
+      OpenObjectBrowserSized(
+        "TypeFilter=FOL,IQD",
+
+        function (sender, args) {
+          try {
+            var path = sender.SelectedDocumentPath;
+
+            var key = sender.SelectedDocumentVersionKey || sender.result || "";
+
+            if (path || key) {
+              input.value = path;
+
+              setConfigValueforIQAPath(inputId, key);
+            }
+          } catch (exc) {}
+        },
+        true,
+
+        true
+      );
+    }
+
+    function ValidatePath(inputID) {
+      var input = document.getElementById(inputID);
+
+      var validator = document.getElementById(input.dataset.validatorid);
+
+      if (!IsValid(input.value)) {
+        DisableSave(true);
+
+        if (validator.classList.contains("d-none")) {
+          validator.classList.remove("d-none");
+        }
+      } else {
+        var isValid = true;
+
+        document.querySelectorAll("[data-validatorid]").forEach((input) => {
+          if (!IsValid(input.value)) {
+            isValid = false;
+          }
+        });
+
+        if (isValid) {
+          DisableSave(false);
+        }
+
+        if (!validator.classList.contains("d-none")) {
+          validator.classList.add("d-none");
+        }
+      }
+    }
+
+    function ValidateandSaveConfigFile(e) {
+      var invalid = false;
+
+      document.querySelectorAll("[data-validatorid]").forEach((input) => {
+        if (!IsValid(input.value)) {
+          ValidatePath(input.id);
+
+          invalid = true;
+        }
+      });
+
+      if (!invalid) {
+        DisableSave(false);
+
+        commitConfigValue();
+
+        return true;
+      }
+    }
+
+    function DisableSave(isDisabled) {
+      var saveandClose = document.querySelector("input[id$='_SaveAndCloseButton']");
+
+      var save = document.querySelector("input[id$='_SaveButton']");
+
+      if (saveandClose) {
+        saveandClose.disabled = isDisabled;
+
+        saveandClose.style.opacity = 1;
+      }
+
+      if (save) {
+        save.disabled = isDisabled;
+
+        save.style.opacity = 1;
+      }
+    }
+
+    function IsValid(value) {
+      return value ? true : false;
+    }
+  </script>
+</html>
