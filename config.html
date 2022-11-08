@@ -4,10 +4,30 @@
   <body>
     <div class="ShowFieldset">
       <fieldset>
+        <legend class="pb-0">sample settings region 1</legend>
 
         <div class="PanelField Left">
           <div style="display: inline">
-            <label for="Region_1_IQAPath_Input" class="Required">Source query</label>
+            <label for="Title_Input">Title</label>
+          </div>
+
+          <div class="PanelFieldValue InputXLargeWrapper">
+            <input
+              name="Title"
+              id="Title_Input"
+              type="text"
+              maxlength="100"
+              size="50"
+              translate="yes"
+              data-parentname="Region_1"
+              data-defaultvalue="sample default value"
+            />
+          </div>
+        </div>
+
+        <div class="PanelField Left">
+          <div style="display: inline">
+            <label for="Region_1_IQAPath_Input" class="Required">Source query for region 1</label>
           </div>
 
           <div class="PanelFieldValue InputXLargeWrapper">
