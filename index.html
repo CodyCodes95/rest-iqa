@@ -13,7 +13,8 @@
         headers: { RequestVerificationToken: jQuery("#__RequestVerificationToken").val() },
       }
     );
-    return await getSettings.json();
+    const data = await getSettings.json();
+    return await data.Items.$values[0].Data.Settings.Region_1.IQAPath
   };
 
   const getIqaData = async (iqaPath) => {
