@@ -13,8 +13,21 @@
         headers: { RequestVerificationToken: jQuery("#__RequestVerificationToken").val() },
       }
     );
-    const data = await getSettings.json();
+    return await getSettings.json();
+  };
+
+  const getIqaData = async (iqaPath) => {
+    const getData = await fetch(`${window.location.origin}/api/query?queryname=${iqapath}`, {
+      method: "GET",
+      headers: { RequestVerificationToken: jQuery("#__RequestVerificationToken").val() },
+    });
+    const data = await getData.json();
     console.log(data);
   };
-  getIpartSettings()
+
+  getIpartSettings().then((path) => {
+    getIqaData(path);
+  });
 </script>
+
+<div></div>
